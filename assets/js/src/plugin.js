@@ -1,0 +1,13 @@
+/**
+ * Echo
+ * http://wordpress.org/plugins
+ *
+ * Copyright (c) 2013 lkwdwrd, tddewey, 10up
+ * Licensed under the GPLv2+ license.
+ */
+ 
+( function( window, undefined ) {
+	'use strict';
+
+
+} )( this );
