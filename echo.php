@@ -50,6 +50,11 @@ function echo_init() {
 	load_plugin_textdomain( 'echo', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
 
+function echo_scripts() {
+	if ( is_admin() )
+		wp_enqueue_script( 'echo-init', ECHO_URL . 'assets/js/echo.js', array(), ECHO_VERSION, true );
+}
+
 /**
  * Activate the plugin
  */
@@ -72,6 +77,7 @@ register_deactivation_hook( __FILE__, 'echo_deactivate' );
 
 // Wireup actions
 add_action( 'init', 'echo_init' );
+add_action( 'wp_enqueue_scripts', 'echo_scripts' );
 
 // Wireup filters
 

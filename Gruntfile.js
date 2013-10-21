@@ -12,16 +12,11 @@ module.exports = function( grunt ) {
 					' * Licensed GPLv2+' +
 					' */\n'
 			},
-			victory_passport: {
+			echo: {
 				src: [
-					'assets/js/src/utils.js',
-					'assets/js/src/models/*.js',
-					'assets/js/src/views/parents/default.view.js',
-					'assets/js/src/views/parents/container.view.js',
-					'assets/js/src/views/*.js',
-					'assets/js/src/app.js'
+					'assets/js/src/*.js'
 				],
-				dest: 'assets/js/victory_passport.js'
+				dest: 'assets/js/echo.js'
 			}
 		},
 		jshint: {
@@ -60,7 +55,7 @@ module.exports = function( grunt ) {
 		uglify: {
 			all: {
 				files: {
-					'assets/js/victory_passport.min.js': ['assets/js/victory_passport.js']
+					'assets/js/echo.min.js': ['assets/js/echo.js']
 				},
 				options: {
 					banner: '/*! <%= pkg.title %> - v<%= pkg.version %>\n' +
@@ -81,7 +76,7 @@ module.exports = function( grunt ) {
 		sass:   {
 			all: {
 				files: {
-					'assets/css/victory_passport.css': 'assets/css/sass/victory_passport.scss'
+					'assets/css/echo.css': 'assets/css/sass/echo.scss'
 				}
 			}
 		},
@@ -92,7 +87,7 @@ module.exports = function( grunt ) {
 					browsers: [ 'last 1 version', '> 1%', 'ie 8' ]
 				},
 				files: {
-					'assets/css/victory_passport.css': [ 'assets/css/victory_passport.css' ]
+					'assets/css/echo.css': [ 'assets/css/echo.css' ]
 				}
 			}
 		},
@@ -109,7 +104,7 @@ module.exports = function( grunt ) {
 				expand: true,
 				
 				cwd: 'assets/css/',
-				src: ['victory_passport.css'],
+				src: ['echo.css'],
 				
 				dest: 'assets/css/',
 				ext: '.min.css'
@@ -160,12 +155,12 @@ module.exports = function( grunt ) {
 			main: {
 				options: {
 					mode: 'zip',
-					archive: './release/victory_passport.<%= pkg.version %>.zip'
+					archive: './release/echo.<%= pkg.version %>.zip'
 				},
 				expand: true,
 				cwd: 'release/<%= pkg.version %>/',
 				src: ['**/*'],
-				dest: 'victory_passport/'
+				dest: 'echo/'
 			}
 		}
 	} );
