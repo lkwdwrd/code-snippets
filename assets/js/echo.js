@@ -55,7 +55,7 @@
 			this.on( 'router:create:tabs',         this.createRouter,   this );
 			this.on( 'router:render:tabs',         this.renderRouter,   this );
 			this.on( 'content:create:codeLibrary', this.libraryContent, this );
-			this.on( 'content:render:codeEdit',    this.editContent,    this );
+			this.on( 'content:create:codeEdit',    this.editContent,    this );
 			this.on( 'toolbar:create:insert',      this.createToolbar,  this );
 		}
 
@@ -79,7 +79,9 @@
 		}
 
 		function editContent( content ) {
-			content.view = new media.View();
+			content.view = new echo.view.Edit({
+				controller: this
+			});
 		}
 
 		function createToolbar( toolbar, options ) {
@@ -141,6 +143,36 @@
 			createToolbar: createToolbar
 		};
 	})());
+	// The wrapper view for the library views
+	echo.view.Edit = media.View.extend((function(){
+		function init() {
+			
+			this.createSidebar();
+		}
+		function createSidebar() {
+			var options = this.options,
+				selection = options.selection,
+				sidebar = this.sidebar = new media.view.Sidebar({
+					controller: this.controller
+				});
+
+			this.views.add( this.sidebar );
+
+
+			//selection.on( 'selection:single', this.createSingle, this );
+			//selection.on( 'selection:unsingle', this.disposeSingle, this );
+
+			//if ( selection.single() )
+				//this.createSingle();
+		}
+		return {
+			tagName:       'div',
+			className:     'jot-editor',
+			initialize:    init,
+			createSidebar: createSidebar
+		};
+	})());
+
 	function open() {
 		if ( 'undefined' === typeof modal ) {
 			modal = new echo.Modal();
