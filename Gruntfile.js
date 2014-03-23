@@ -14,9 +14,13 @@ module.exports = function( grunt ) {
 			},
 			echo: {
 				src: [
-					'assets/js/src/*.js'
+					'assets/js/wrap/pre.js',
+					'assets/js/src/controllers/*.js',
+					'assets/js/src/models/*.js',
+					'assets/js/src/views/*.js',
+					'assets/js/wrap/post.js'
 				],
-				dest: 'assets/js/echo.js'
+				dest: 'assets/js/jots.js'
 			}
 		},
 		jshint: {
@@ -26,36 +30,36 @@ module.exports = function( grunt ) {
 				'assets/js/test/**/*.js'
 			],
 			options: {
-				curly:   true,
-				eqeqeq:  true,
-				immed:   true,
-				latedef: true,
-				newcap:  true,
-				noarg:   true,
-				sub:     true,
-				undef:   true,
-				boss:    true,
-				eqnull:  true,
+				curly:     true,
+				eqeqeq:    true,
+				immed:     true,
+				latedef:   true,
+				newcap:    true,
+				noarg:     true,
+				sub:       true,
+				undef:     true,
+				boss:      true,
+				eqnull:    true,
+				validthis: true,
 				globals: {
-					window: true,
+					window:   true,
 					document: true,
-					console: true,
-					_: true,
+					console:  true,
+					_:        true,
 					Backbone: true,
-					jQuery: true,
-					wp: true,
-					vp: true,
-					vp_data: true,
-					exports: true,
-					module:  false
-				},
-				validthis: true
+					jQuery:   true,
+					wp:       true,
+					media:    true,
+					echo:     true,
+					exports:  true,
+					module:   false
+				}
 			}
 		},
 		uglify: {
 			all: {
 				files: {
-					'assets/js/echo.min.js': ['assets/js/echo.js']
+					'assets/js/jots.min.js': ['assets/js/jots.js']
 				},
 				options: {
 					banner: '/*! <%= pkg.title %> - v<%= pkg.version %>\n' +
@@ -121,7 +125,7 @@ module.exports = function( grunt ) {
 			},
 			
 			scripts: {
-				files: ['assets/js/src/**/*.js', 'assets/js/vendor/**/*.js'],
+				files: ['assets/js/src/**/*.js', 'assets/js/vendor/**/*.js', 'assets/js/wrap/**/*.js'],
 				tasks: ['jshint', 'concat', 'uglify'],
 				options: {
 					debounceDelay: 500

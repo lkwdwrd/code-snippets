@@ -53,7 +53,7 @@ function echo_init() {
 }
 
 function echo_scripts() {
-	wp_enqueue_script( 'echo-admin', ECHO_JS_URL . '/echo.js', array( 'media-views' ), ECHO_VERSION, true );
+	wp_enqueue_script( 'jots', ECHO_JS_URL . '/jots.js', array( 'media-views' ), ECHO_VERSION, true );
 }
 
 /**
