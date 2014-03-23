@@ -17,6 +17,7 @@ module.exports = function( grunt ) {
 					'assets/js/wrap/pre.js',
 					'assets/js/src/controllers/*.js',
 					'assets/js/src/models/*.js',
+					'assets/js/src/filters/*.js',
 					'assets/js/src/views/*.js',
 					'assets/js/wrap/post.js'
 				],
