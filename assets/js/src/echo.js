@@ -14,6 +14,7 @@
 	_.defaults( echo.data || {}, {
 
 	});
+	// A very basic wp media system controller
 	echo.Controller = media.controller.State.extend((function(){
 
 		function init( options ) {
@@ -34,6 +35,8 @@
 			initialize: init
 		};
 	})());
+	
+	// Our take on the wp media frame modal system.
 	echo.Modal = media.view.MediaFrame.extend((function(){
 		function init() {
 			media.view.MediaFrame.prototype.initialize.apply( this, arguments );
@@ -74,12 +77,14 @@
 			});
 		}
 
-		function libraryContent( content ) {
-			content = new media.View();
+		function libraryContent( content, options ) {
+			content.view = new echo.view.Library({
+				controller: this
+			});
 		}
 
 		function editContent( content ) {
-			content = new media.View();
+			content.view = new media.View();
 		}
 
 		function createToolbar( toolbar, options ) {
@@ -90,14 +95,57 @@
 		}
 
 		return {
-			initialize:    init,
-			bindHandlers:  bindHandlers,
-			renderRouter:  renderRouter,
-			createToolbar: createToolbar
+			initialize:     init,
+			bindHandlers:   bindHandlers,
+			renderRouter:   renderRouter,
+			libraryContent: libraryContent,
+			editContent:    editContent,
+			createToolbar:  createToolbar
 
 		};
 	})());
 
+	// Lets make some views!
+	echo.view = {};
+
+	// The wrapper view for the library views
+	echo.view.Library = media.View.extend((function(){
+		function init() {
+			
+			this.createSidebar();
+			this.createToolbar();
+		}
+		function createSidebar() {
+			var options = this.options,
+				selection = options.selection,
+				sidebar = this.sidebar = new media.view.Sidebar({
+					controller: this.controller
+				});
+
+			this.views.add( sidebar );
+
+
+			//selection.on( 'selection:single', this.createSingle, this );
+			//selection.on( 'selection:unsingle', this.disposeSingle, this );
+
+			//if ( selection.single() )
+				//this.createSingle();
+		}
+		function createToolbar() {
+			this.toolbar = new media.view.Toolbar({
+				controller: this.controller
+			});
+
+			this.views.add( this.toolbar );
+		}
+		return {
+			tagName:       'div',
+			className:     'jot-library',
+			initialize:    init,
+			createSidebar: createSidebar,
+			createToolbar: createToolbar
+		};
+	})());
 	function open() {
 		if ( 'undefined' === typeof modal ) {
 			modal = new echo.Modal();
