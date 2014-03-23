@@ -37,8 +37,10 @@
 
 // Useful global constants
 define( 'ECHO_VERSION', '0.1.0' );
-define( 'ECHO_URL',     plugin_dir_url( __FILE__ ) );
-define( 'ECHO_PATH',    dirname( __FILE__ ) . '/' );
+define( 'ECHO_URL',     plugins_url( basename( __DIR__ ) ) );
+define( 'ECHO_PATH',    dirname( __FILE__ ) );
+define( 'ECHO_JS_URL',  ECHO_URL . '/assets/js' );
+define( 'ECHO_INC',     ECHO_PATH . '/includes' );
 
 /**
  * Default initialization for the plugin:
@@ -51,8 +53,7 @@ function echo_init() {
 }
 
 function echo_scripts() {
-	if ( is_admin() )
-		wp_enqueue_script( 'echo-init', ECHO_URL . 'assets/js/echo.js', array(), ECHO_VERSION, true );
+	wp_enqueue_script( 'echo-admin', ECHO_JS_URL . '/echo.js', array( 'media-views' ), ECHO_VERSION, true );
 }
 
 /**
@@ -77,7 +78,7 @@ register_deactivation_hook( __FILE__, 'echo_deactivate' );
 
 // Wireup actions
 add_action( 'init', 'echo_init' );
-add_action( 'wp_enqueue_scripts', 'echo_scripts' );
+add_action( 'admin_enqueue_scripts', 'echo_scripts' );
 
 // Wireup filters
 
