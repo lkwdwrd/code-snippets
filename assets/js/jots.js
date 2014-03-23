@@ -85,7 +85,7 @@ echo.controller.Modal = media.view.MediaFrame.extend((function(){
 	};
 })());
 
-// A very basic wp media system controller
+// A wp media system controller for jots
 echo.controller.State = media.controller.State.extend((function(){
 
 	function init( options ) {
