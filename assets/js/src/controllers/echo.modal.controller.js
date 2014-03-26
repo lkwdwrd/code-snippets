@@ -39,7 +39,7 @@ echo.controller.Modal = media.view.MediaFrame.extend((function(){
 		});
 	}
 
-	function libraryContent( content, options ) {
+	function libraryContent( content ) {
 		content.view = new echo.view.Library({
 			controller: this
 		});

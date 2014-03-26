@@ -17,7 +17,7 @@ module.exports = function( grunt ) {
 					'assets/js/wrap/pre.js',
 					'assets/js/src/controllers/*.js',
 					'assets/js/src/models/*.js',
-					'assets/js/src/filters/*.js',
+					'assets/js/src/views/filters/*.js',
 					'assets/js/src/views/*.js',
 					'assets/js/wrap/post.js'
 				],
@@ -126,7 +126,12 @@ module.exports = function( grunt ) {
 			},
 			
 			scripts: {
-				files: ['assets/js/src/**/*.js', 'assets/js/vendor/**/*.js', 'assets/js/wrap/**/*.js'],
+				files: [
+					'assets/js/src/**/*.js',
+					'assets/js/src/**/**/*.js',
+					'assets/js/vendor/**/*.js',
+					'assets/js/wrap/**/*.js'
+				],
 				tasks: ['jshint', 'concat', 'uglify'],
 				options: {
 					debounceDelay: 500

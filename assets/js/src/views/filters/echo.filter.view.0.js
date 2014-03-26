@@ -1,31 +1,64 @@
 // A basic filter view.
 
 echo.view.filter = media.View.extend((function(){
-	function init( options ) {
+	function construct( options ) {
+		var i;
+		
 		// Make sure keys exist.
 		_.defaults( options || {}, {
+			tagName:        'input',
+			className:      'echoFilter',
+			attributes:     { type: 'text' },
 			param:          's',
-			template:       'filter',
-			events:         [ 'change' ],
+			events:         {},
+			filterEvents:   [ 'change', 'keyup' ],
 			preventDefault: false
 		});
 
+		this._inputEl = new media.View( options );
+
+		//Set up filter event handlers
+		_.bindAll( this, 'preFilter', 'filter' );
+		this.filterEvents = options.filterEvents;
+
+		// Allow tags and parameters to be set on the parent
+		options.tagName = options._tagName;
+		delete( options._tagName );
+		options.className = options._className;
+		delete( options._className );
+		options.attributes = options._attributes;
+		delete( options._attributes );
+		options.id = options._id;
+		delete( options._id );
+
+		// clear undefined values
+		for ( i in options ) {
+			if ( 'undefined' === typeof options[ i ] ) {
+				delete( options[ i ] );
+			}
+		}
+
+		// Run the constructor and add the input el as a subview.
+		media.View.prototype.constructor.call( this, options );
+		this.views.add( this._inputEl );
+	}
+	function init( options ) {
 		// Gather option values with some validation
 		this.param = options.param;
-		this.value = null;
-		this.template = wp.template( options.template );
+		this.value = options.value;
 		this.preventDefault = !! options.preventDefault;
 		this.throttle = parseInt( options.throttle, 10 );
 		if ( _.isNaN( this.throttle ) || 0 === this.throttle ) {
 			this.throttle = false;
 		}
-
-		//Make filters work
-		_.bindAll( this, 'filter' );
-		_.each( options.events, _addEvents, this );
+	}
+	function delegateEvents(){
+		media.View.prototype.delegateEvents.apply( this, arguments );
+		_.each( this.filterEvents, _addEvents, this );
+		this._inputEl.delegateEvents();
 	}
 	function _addEvents( event ) {
-		this.events[ event ] = 'preFilter';
+		this._inputEl.events[ event ] = this.preFilter;
 	}
 	function preFilter( event ) {
 		if ( this.preventDefault ) {
@@ -34,30 +67,37 @@ echo.view.filter = media.View.extend((function(){
 		if ( ! this.throttle ) {
 			this.filter();
 		} else {
-			this.clearTimeout( this.timeout );
-			this.timeout = window.setTimeout( this.filter );
+			window.clearTimeout( this.timeout );
+			this.timeout = window.setTimeout( this.filter, this.throttle );
 		}
 	}
 	function filter( event ) {
 		// Get and validate filter val
-		var filterVal = this.$el.val();
-		this.value = ( '' === filterVal ) ? null : filterVal;
+		var filterVal = this._inputEl.$el.val();
+		this.value = ( '' === filterVal ) ? undefined : filterVal;
 		this.trigger( 'filter', this );
 	}
 	return {
-		initialize: init,
-		filter:     filter
+		filterEvents:   {},
+		constructor:    construct,
+		initialize:     init,
+		delegateEvents: delegateEvents,
+		filter:         filter,
+		preFilter:      preFilter
 	};
 })());
 
 echo.view.filterTax = echo.view.filter.extend((function(){
 	function init( options ) {
 		echo.view.filter.prototype.initialize.apply( this, arguments );
-		this.taxFilter = {
+
+		this._value = _.defaults( options.value || {}, {
 			taxonomy: options.taxonomy,
 			field:    options.field,
-			term:     null
-		};
+			term:     undefined
+		});
+
+		this.on( 'prepare', this.rawValue, this );
 	}
 	function filter( event ) {
 		if ( this.preventDefault ) {
@@ -65,10 +105,14 @@ echo.view.filterTax = echo.view.filter.extend((function(){
 		}
 
 		// Get and validate filter val
-		var filterVal = this.$el.val();
-		this.taxFilter.term = ( '' === filterVal ) ? null : filterVal;
-		this.value = ( _.isNull( this.taxFilter.term ) ) ? null : this.taxFilter;
+		var filterVal = this._inputEl.$el.val();
+		this._value.term = ( '' === filterVal ) ? undefined : filterVal;
+		this.value = ( _.isUndefined( this._value.term ) ) ? undefined : this._value;
 		this.trigger( 'filter', this );
+	}
+	function rawValue( data ) {
+		data = this._value.term;
+		return data;
 	}
 	return {
 		initialize: init,

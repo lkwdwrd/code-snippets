@@ -20,13 +20,31 @@ echo.controller.State = media.controller.State.extend((function(){
 		filter.on( 'filter', this.applyFilters, this );
 		this.filters[ filter.param ] = filter.value;
 	}
+	function removeFilter( filter ) {
+		if ( ! _.isArray( filter ) ) {
+			filter = [ filter ];
+		}
+		_.each( filter, _removeFilter, this );
+		//this.get('library').applyFilters();
+	}
+	function _removeFilter( filter ) {
+		if ( this.filters[ filter ] ) {
+			filter.off( 'filter', this.applyFilters, this );
+			delete( this.filters[ filter.param ] );
+		}
+	}
 	function applyFilters( filter ){
 		// If this filter is already this value, don't change anything.
 		if ( this.filters[ filter.param ] === filter.value ) {
 			return;
 		}
 		// Set it and update the library accordingly.
-		this.filters[ filter.param ] = filter.value;
+		if ( 'undefined' === typeof filter.value ) {
+			delete( this.filters[ filter.param ] );
+		} else {
+			this.filters[ filter.param ] = filter.value;
+		}
+		console.log( this.filters );
 		//this.get('library').applyFilters();
 	}
 	return {
@@ -43,6 +61,7 @@ echo.controller.State = media.controller.State.extend((function(){
 		filters:      {},
 		initialize:   init,
 		addFilter:    addFilter,
+		removeFilter: removeFilter,
 		applyFilters: applyFilters
 	};
 })());

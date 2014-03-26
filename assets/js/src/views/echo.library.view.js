@@ -22,11 +22,21 @@ echo.view.Library = media.View.extend((function(){
 			//this.createSingle();
 	}
 	function createToolbar() {
+		var search;
+
 		this.toolbar = new media.view.Toolbar({
 			controller: this.controller
 		});
-
 		this.views.add( this.toolbar );
+
+		search = new echo.view.filter({
+			tagName:   'input',
+			className: 'jot-search',
+			id:        'jot-search',
+			throttle:   300
+		});
+		this.toolbar.views.add( search );
+		this.controller.state().addFilter( search );
 	}
 	return {
 		tagName:       'div',
