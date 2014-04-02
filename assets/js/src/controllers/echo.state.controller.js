@@ -18,7 +18,11 @@ echo.controller.State = media.controller.State.extend((function(){
 	}
 	function _addFilter( filter ) {
 		filter.on( 'filter', this.applyFilters, this );
-		this.filters[ filter.param ] = filter.value;
+		if ( this.filters[ filter.param ] ) {
+			filter.val( [ this.filters[ filter.param ] ] );
+		} else if ( 'undefined' !== typeof filter.value ) {
+			this.filters[ filter.param ] = filter.value;
+		}
 	}
 	function removeFilter( filter ) {
 		if ( ! _.isArray( filter ) ) {

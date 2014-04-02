@@ -105,7 +105,11 @@ echo.controller.State = media.controller.State.extend((function(){
 	}
 	function _addFilter( filter ) {
 		filter.on( 'filter', this.applyFilters, this );
-		this.filters[ filter.param ] = filter.value;
+		if ( this.filters[ filter.param ] ) {
+			filter.val( [ this.filters[ filter.param ] ] );
+		} else if ( 'undefined' !== typeof filter.value ) {
+			this.filters[ filter.param ] = filter.value;
+		}
 	}
 	function removeFilter( filter ) {
 		if ( ! _.isArray( filter ) ) {
@@ -157,10 +161,11 @@ echo.controller.State = media.controller.State.extend((function(){
 
 echo.view.filter = media.View.extend((function(){
 	function construct( options ) {
-		var i;
-		
+		var i, selector;
+
 		// Make sure keys exist.
 		_.defaults( options || {}, {
+			id:             options.id || _.uniqueId( 'echo' ),
 			tagName:        'input',
 			className:      'echoFilter',
 			attributes:     { type: 'text' },
@@ -170,7 +175,9 @@ echo.view.filter = media.View.extend((function(){
 			preventDefault: false
 		});
 
+		selector = ( options.template ) ? '.' + options.template : false;
 		this._inputEl = new media.View( options );
+		this.inputId = options.id;
 
 		//Set up filter event handlers
 		_.bindAll( this, 'preFilter', 'filter' );
@@ -195,16 +202,25 @@ echo.view.filter = media.View.extend((function(){
 
 		// Run the constructor and add the input el as a subview.
 		media.View.prototype.constructor.call( this, options );
-		this.views.add( this._inputEl );
+		if ( selector ) {
+			this.views.add( selector, this._inputEl, { add: false } );
+		} else {
+			this.views.add( this._inputEl, { add: false } );
+		}
+		this.on( 'prepare', _addID, this );
 	}
 	function init( options ) {
 		// Gather option values with some validation
+		this.title = options.title;
 		this.param = options.param;
 		this.value = options.value;
 		this.preventDefault = !! options.preventDefault;
 		this.throttle = parseInt( options.throttle, 10 );
 		if ( _.isNaN( this.throttle ) || 0 === this.throttle ) {
 			this.throttle = false;
+		}
+		if ( _.isString( options.template ) ) {
+			this.template = wp.template( options.template );
 		}
 	}
 	function delegateEvents(){
@@ -232,13 +248,20 @@ echo.view.filter = media.View.extend((function(){
 		this.value = ( '' === filterVal ) ? undefined : filterVal;
 		this.trigger( 'filter', this );
 	}
+	function val( value ) {
+		this._inputEl.$el.val( value );
+	}
+	function _addID( object ) {
+		object.inputId = this.inputId;
+	}
 	return {
 		filterEvents:   {},
 		constructor:    construct,
 		initialize:     init,
 		delegateEvents: delegateEvents,
 		filter:         filter,
-		preFilter:      preFilter
+		preFilter:      preFilter,
+		val:            val
 	};
 })());
 
@@ -266,14 +289,14 @@ echo.view.filterTax = echo.view.filter.extend((function(){
 		this.trigger( 'filter', this );
 	}
 	function rawValue( data ) {
-		data = this._value.term;
-		return data;
+		data.value = this._value.term;
 	}
 	return {
 		initialize: init,
 		filter:     filter
 	};
 })());
+
 // The wrapper view for the editor view
 echo.view.Edit = media.View.extend((function(){
 	function init() {
@@ -311,7 +334,8 @@ echo.view.Library = media.View.extend((function(){
 		this.createToolbar();
 	}
 	function createSidebar() {
-		var options = this.options,
+		var categories,
+			options = this.options,
 			selection = options.selection,
 			sidebar = this.sidebar = new media.view.Sidebar({
 				controller: this.controller
@@ -319,12 +343,14 @@ echo.view.Library = media.View.extend((function(){
 
 		this.views.add( sidebar );
 
-
-		//selection.on( 'selection:single', this.createSingle, this );
-		//selection.on( 'selection:unsingle', this.disposeSingle, this );
-
-		//if ( selection.single() )
-			//this.createSingle();
+		categories = new echo.view.filterTax({
+			tagName:   'select',
+			className: 'jot-category',
+			id:        'jot-category',
+			title:     'Categories'
+		});
+		sidebar.views.add( categories );
+		this.controller.state().addFilter( categories );
 	}
 	function createToolbar() {
 		var search;
@@ -338,7 +364,9 @@ echo.view.Library = media.View.extend((function(){
 			tagName:   'input',
 			className: 'jot-search',
 			id:        'jot-search',
-			throttle:   300
+			template:  'echo-textfield',
+			title:     'Search',
+			throttle:  300
 		});
 		this.toolbar.views.add( search );
 		this.controller.state().addFilter( search );

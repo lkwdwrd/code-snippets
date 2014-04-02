@@ -50,10 +50,15 @@ function echo_init() {
 	$locale = apply_filters( 'plugin_locale', get_locale(), 'echo' );
 	load_textdomain( 'echo', WP_LANG_DIR . '/echo/echo-' . $locale . '.mo' );
 	load_plugin_textdomain( 'echo', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+	add_action( 'print_media_templates', 'echo_templates' );
 }
 
 function echo_scripts() {
 	wp_enqueue_script( 'jots', ECHO_JS_URL . '/jots.js', array( 'media-views' ), ECHO_VERSION, true );
+}
+
+function echo_templates() {
+	include ECHO_PATH . '/templates/textfield.template.php';
 }
 
 /**

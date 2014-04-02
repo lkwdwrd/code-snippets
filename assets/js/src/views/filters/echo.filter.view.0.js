@@ -2,10 +2,11 @@
 
 echo.view.filter = media.View.extend((function(){
 	function construct( options ) {
-		var i;
-		
+		var i, selector;
+
 		// Make sure keys exist.
 		_.defaults( options || {}, {
+			id:             options.id || _.uniqueId( 'echo' ),
 			tagName:        'input',
 			className:      'echoFilter',
 			attributes:     { type: 'text' },
@@ -15,7 +16,9 @@ echo.view.filter = media.View.extend((function(){
 			preventDefault: false
 		});
 
+		selector = ( options.template ) ? '.' + options.template : false;
 		this._inputEl = new media.View( options );
+		this.inputId = options.id;
 
 		//Set up filter event handlers
 		_.bindAll( this, 'preFilter', 'filter' );
@@ -40,16 +43,25 @@ echo.view.filter = media.View.extend((function(){
 
 		// Run the constructor and add the input el as a subview.
 		media.View.prototype.constructor.call( this, options );
-		this.views.add( this._inputEl );
+		if ( selector ) {
+			this.views.add( selector, this._inputEl, { add: false } );
+		} else {
+			this.views.add( this._inputEl, { add: false } );
+		}
+		this.on( 'prepare', _addID, this );
 	}
 	function init( options ) {
 		// Gather option values with some validation
+		this.title = options.title;
 		this.param = options.param;
 		this.value = options.value;
 		this.preventDefault = !! options.preventDefault;
 		this.throttle = parseInt( options.throttle, 10 );
 		if ( _.isNaN( this.throttle ) || 0 === this.throttle ) {
 			this.throttle = false;
+		}
+		if ( _.isString( options.template ) ) {
+			this.template = wp.template( options.template );
 		}
 	}
 	function delegateEvents(){
@@ -77,13 +89,20 @@ echo.view.filter = media.View.extend((function(){
 		this.value = ( '' === filterVal ) ? undefined : filterVal;
 		this.trigger( 'filter', this );
 	}
+	function val( value ) {
+		this._inputEl.$el.val( value );
+	}
+	function _addID( object ) {
+		object.inputId = this.inputId;
+	}
 	return {
 		filterEvents:   {},
 		constructor:    construct,
 		initialize:     init,
 		delegateEvents: delegateEvents,
 		filter:         filter,
-		preFilter:      preFilter
+		preFilter:      preFilter,
+		val:            val
 	};
 })());
 
@@ -111,8 +130,7 @@ echo.view.filterTax = echo.view.filter.extend((function(){
 		this.trigger( 'filter', this );
 	}
 	function rawValue( data ) {
-		data = this._value.term;
-		return data;
+		data.value = this._value.term;
 	}
 	return {
 		initialize: init,
